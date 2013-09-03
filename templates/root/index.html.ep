@@ -1,0 +1,38 @@
+% layout 'default';
+% title 'Cronin';
+
+% if (@$tasks) {
+
+% my $now = Time::Piece->new;
+
+<table class="table table-bordered">
+  <tr>
+    <th width="120">Start</th>
+    <th width="120">End</th>
+    <th width="50">Time</th>
+    <th>Task</th>
+    <th width="50">PID</th>
+    <th width="30">Exit code</th>
+    <th>STDOUT</th>
+    <th>STDERR</th>
+  </tr>
+% for my $task (@$tasks) {
+% my $log = $task->fetch_last_log or next;
+% my $started_at  = $log->started_at;
+% my $finished_at = $log->finished_at;
+  <tr<%== $task->pid ? ' class="warning"' : $log->exit_code ? ' class="error"' : '' %>>
+    <td class="nowrap"><a href="/logs/<%= $log->id %>"><%= $started_at->strftime('%Y-%m-%d %H:%M:%S') %></a></td>
+    <td class="nowrap"><%= $finished_at ? $finished_at->strftime('%Y-%m-%d %H:%M:%S') : '-' %></td>
+    <td class="nowrap"><%= ($finished_at ? $log->finished_at - $log->started_at : $now - $log->started_at) . ' sec' %></td>
+    <td class="nowrap"><a href="/tasks/<%= $task->id %>"><%= $task->name %></a></td>
+    <td class="nowrap"><%= $task->pid || '-' %></td>
+    <td class="nowrap"><%= $log->finished_at ? $log->exit_code : '-' %></td>
+    <td class="nowrap"><%= truncate_str $log->stdout, 40 %></td>
+    <td class="nowrap"><%= truncate_str $log->stderr, 40 %></td>
+  </tr>
+% }
+</table>
+
+%= include 'include/pager';
+
+% }

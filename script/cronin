@@ -1,0 +1,8 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use Cronin::Runner;
+
+my $runner = Cronin::Runner->new_with_options;
+$runner->run;

@@ -1,0 +1,57 @@
+package Cronin::DB::Row::Task;
+use strict;
+use warnings;
+use parent 'Teng::Row';
+
+use Cronin;
+use String::ShellQuote;
+
+sub start {
+    my ($self, $data) = @_;
+    my $txn = $self->handle->txn_scope;
+    my $now = $self->handle->now;
+    my $log = $self->handle->insert('logs' => {
+        task_id    => $self->id,
+        user       => $data->{user},
+        hostname   => $data->{hostname},
+        argv       => join(' ', map { shell_quote_best_effort $_ } @{$data->{argv}}),
+        stdout     => '',
+        stderr     => '',
+        started_at => $now,
+        updated_at => $now,
+    })->refetch;
+    $self->update({
+        last_executed_at => $now,
+        last_log_id      => $log->id,
+    });
+    $txn->commit;
+    $log;
+}
+
+sub write_pid {
+    my ($self, $pid) = @_;
+    $self->update({ pid => $pid });
+}
+
+sub finish {
+    my $self = shift;
+    $self->update({ pid => undef });
+}
+
+sub fetch_last_log {
+    my $self = shift;
+    $self->handle->find('logs' => $self->last_log_id);
+}
+
+sub logs {
+    my ($self, $page) = @_;
+    $page = 1 if $page =~ /\D/ or $page < 1;
+    $self->handle->search_with_pager('logs' => { task_id => $self->id }, {
+        order_by => 'started_at DESC',
+        page     => $page,
+        rows     => Cronin->config->{Pager}{rows},
+    });
+}
+
+1;
+__END__

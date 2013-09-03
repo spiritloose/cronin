@@ -1,0 +1,47 @@
+% layout 'default';
+% title 'Cronin';
+
+<h2><a href="/tasks/<%= $task->id %>"><%= $task->name %></a></h2>
+% my $finished_at = $log->finished_at;
+<table class="table table-bordered">
+  <tr>
+    <th width="150">Start</th>
+    <td><%= $log->started_at->strftime('%F %T') %></td>
+  </tr>
+  <tr>
+    <th>End</th>
+    <td><%= $finished_at ? $log->finished_at->strftime('%F %T') : '-' %></td>
+  </tr>
+  <tr>
+    <th>Time</th>
+    <td><%= ($finished_at ? $log->finished_at - $log->started_at : Time::Piece->new - $log->started_at) . ' sec' %></td>
+  </tr>
+  <tr class="<%= !$finished_at ? 'warning' : $log->exit_code ? 'error' : 'success' %>"">
+    <th>Exit code</th>
+    <td><%= $finished_at ? $log->exit_code : '-' %></td>
+  </tr>
+  <tr>
+    <th>ARGV</th>
+    <td><% if (length($log->argv)) { %><pre><%= $log->argv%></pre><% } %></td>
+  </tr>
+  <tr>
+    <th>STDOUT</th>
+    <td><% if (length($log->stdout)) { %><pre><%= $log->stdout %></pre><% } %></td>
+  </tr>
+  <tr>
+    <th>STDERR</th>
+    <td><% if (length($log->stderr)) { %><pre><%= $log->stderr %></pre><% } %></td>
+  </tr>
+  <tr>
+    <th>User</th>
+    <td><%= $log->user %></td>
+  </tr>
+  <tr>
+    <th>Hostname</th>
+    <td><%= $log->hostname %></td>
+  </tr>
+  <tr>
+    <th>PID</th>
+    <td><%= $log->pid %></td>
+  </tr>
+</table>

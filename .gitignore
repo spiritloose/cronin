@@ -1,0 +1,8 @@
+META.yml
+MYMETA.*
+Makefile
+*~
+/Cronin-*
+/.build
+!META.json
+/local/

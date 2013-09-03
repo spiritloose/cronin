@@ -1,0 +1,17 @@
+% if ($pager->prev_page || $pager->next_page) {
+<div class="pagination">
+<ul>
+  % if ($pager->prev_page) {
+  <li><a href="?page=<%= $pager->prev_page %>">Prev</a></li>
+  % } else {
+  <li class="disabled"><a href="#">Prev</a></li>
+  % }
+  <li class="disabled"><a href="#"><%= $pager->first %> - <%= $pager->last %></a></li>
+  % if ($pager->next_page) {
+  <li><a href="?page=<%= $pager->next_page %>">Next</a></li>
+  % } else {
+  <li class="disabled"><a href="#">Next</a></li>
+  % }
+</ul>
+</div>
+% }
