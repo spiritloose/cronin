@@ -71,7 +71,7 @@ sub run {
         $task->finish;
         $txn->commit;
     };
-    if ($exit_code or $self->{notify_force}) {
+    if ($exit_code or $self->{'force-notify'}) {
         $self->notify($task, $log);
     }
 }
