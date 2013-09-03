@@ -18,12 +18,10 @@ sub json_message {
     for my $property (keys %properties) {
         $json->property($property => $properties{$property});
     }
-    my $log = $self->log->get_columns;
-    $log->{url} = $self->log->url;
-    Encode::encode_utf8($json->encode({
-        task => $self->task->name,
-        log  => $log,
-    }));
+    my $data = $self->log->get_columns;
+    $data->{url} = $self->log->url;
+    $data->{task_name} = $self->task->name;
+    Encode::encode_utf8($json->encode($data));
 }
 
 our $TEXT_TEMPLATE = <<'END_TEMPLATE';
