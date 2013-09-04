@@ -49,7 +49,7 @@ sub logs {
     $self->handle->search_with_pager('logs' => { task_id => $self->id }, {
         order_by => 'started_at DESC',
         page     => $page,
-        rows     => Cronin->config->{Pager}{rows},
+        rows     => Cronin->config->{entries_per_page},
     });
 }
 

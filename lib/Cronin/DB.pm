@@ -33,7 +33,7 @@ sub get_tasks {
     $self->search_with_pager('tasks' => {}, {
         order_by => 'last_executed_at DESC, pid IS NOT NULL',
         page     => $page,
-        rows     => Cronin->config->{Pager}{rows},
+        rows     => Cronin->config->{entries_per_page},
     });
 }
 

@@ -43,7 +43,7 @@ sub append_stderr {
 
 sub url {
     my $self = shift;
-    Cronin->config->{BaseURL} . 'logs/' . $self->id;
+    Cronin->config->{base_url} . 'logs/' . $self->id;
 }
 
 1;

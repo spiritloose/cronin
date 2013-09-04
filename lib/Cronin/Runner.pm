@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Cronin;
-use Getopt::Long qw(:config posix_default no_ignore_case bundling auto_help);
+use Getopt::Long qw(:config posix_default no_ignore_case bundling);
 use Pod::Usage qw(pod2usage);
 use AnyEvent::Util qw(run_cmd);
 use Encode;
@@ -25,8 +25,11 @@ sub new_with_options {
         'stdout!',
         'json!',
         'force-notify!',
+        'help!',
         'version!',
     ) or pod2usage(1);
+    $opt{help} and pod2usage(0);
+    $opt{version} and $class->print_version;
     $opt{command} = shift @ARGV or pod2usage(1);
     $opt{argv} = \@ARGV;
     $class->new(%opt);
@@ -42,14 +45,25 @@ sub run {
         hostname => hostname,
         argv     => $self->{argv},
     });
+    my $outbuf = '';
+    my $errbuf = '';
+    my $buffer_size = Cronin->config->{buffer_size};
     my $cv = run_cmd [$self->{command}, @{$self->{argv}}],
         '>' => sub {
             my $out = shift // return;
-            $log->append_stdout(decode_utf8($out));
+            $outbuf .= decode_utf8($out);
+            if (length $outbuf > $buffer_size) {
+                $log->append_stdout($outbuf);
+                $outbuf = '';
+            }
         },
         '2>' => sub {
             my $err = shift // return;
-            $log->append_stderr(decode_utf8($err));
+            $errbuf .= decode_utf8($err);
+            if (length $errbuf > $buffer_size) {
+                $log->append_stderr($errbuf);
+                $errbuf = '';
+            }
         },
         '<' => \*STDIN,
         '$$' => \my $pid,
@@ -62,6 +76,8 @@ sub run {
     };
     my $exit_code = $cv->recv;
     $exit_code >>= 8;
+    $log->append_stdout($outbuf) if $outbuf;
+    $log->append_stderr($errbuf) if $errbuf;
     if ($exit_code == 126 && length $log->stderr == 0) { # exec failed
         $log->append_stderr("cronin: command not found: $self->{command}\n");
     }
@@ -101,10 +117,16 @@ sub do_notify {
 
 sub command_to_name {
     my ($self, $command) = @_;
-    my $root = Cronin->config->{ProjectRoot} or return $command;
+    my $root = $ENV{CRONIN_PROJECT_ROOT} or return $command;
     $root =~ s{/$}{};
     $command =~ s{^$root/}{};
     $command;
+}
+
+sub print_version {
+    my $class = shift;
+    say "Cronin $Cronin::VERSION";
+    exit;
 }
 
 1;
