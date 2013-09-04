@@ -24,7 +24,7 @@ sub json_message {
     Encode::encode_utf8($json->encode($data));
 }
 
-our $TEXT_TEMPLATE = <<'END_TEMPLATE';
+our $TEXT_TEMPLATE = Encode::decode_utf8(<<'END_TEMPLATE');
 % my ($task, $log) = @_;
 URL: <%== $log->url %>
 Task: <%== $task->name %>
@@ -42,8 +42,13 @@ END_TEMPLATE
 
 sub text_message {
     my $self = shift;
+    Encode::encode_utf8($self->text_message_utf8);
+}
+
+sub text_message_utf8 {
+    my $self = shift;
     my $mt = Mojo::Template->new;
-    Encode::encode_utf8($mt->render($TEXT_TEMPLATE, $self->task, $self->log));
+    $mt->render($TEXT_TEMPLATE, $self->task, $self->log);
 }
 
 1;
