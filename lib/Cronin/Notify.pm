@@ -2,7 +2,7 @@ package Cronin::Notify;
 use strict;
 use warnings;
 
-use Class::Accessor::Lite new => 1, ro => [qw(task log target json)];
+use Class::Accessor::Lite new => 1, ro => [qw(task log destination json)];
 use JSON ();
 use Encode ();
 use Mojo::Template;
@@ -21,7 +21,7 @@ sub json_message {
     my $data = $self->log->get_columns;
     $data->{url} = $self->log->url;
     $data->{task_name} = $self->task->name;
-    Encode::encode_utf8($json->encode($data));
+    $json->encode($data);
 }
 
 our $TEXT_TEMPLATE = Encode::decode_utf8(<<'END_TEMPLATE');
@@ -41,11 +41,6 @@ PID: <%== $log->pid %>
 END_TEMPLATE
 
 sub text_message {
-    my $self = shift;
-    Encode::encode_utf8($self->text_message_utf8);
-}
-
-sub text_message_utf8 {
     my $self = shift;
     my $mt = Mojo::Template->new;
     $mt->render($TEXT_TEMPLATE, $self->task, $self->log);

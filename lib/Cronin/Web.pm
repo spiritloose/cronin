@@ -1,6 +1,5 @@
 package Cronin::Web;
 use Mojo::Base 'Mojolicious';
-use Mojo::Cache;
 
 sub startup {
     my $self = shift;
@@ -14,6 +13,7 @@ sub startup {
         return $str if length $str <= $len;
         substr($str, 0, $len) . "\x{2026}";
     });
+#    require Mojo::Cache;
 #    $self->hook(before_dispatch => sub { $self->renderer->cache(Mojo::Cache->new) });
 }
 

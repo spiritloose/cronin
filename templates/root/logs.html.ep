@@ -14,7 +14,7 @@
   </tr>
   <tr>
     <th>Time</th>
-    <td><%= ($finished_at ? $log->finished_at - $log->started_at : Time::Piece->new - $log->started_at) . ' sec' %></td>
+    <td><%= $log->time %> sec</td>
   </tr>
   <tr class="<%= !$finished_at ? 'warning' : $log->exit_code ? 'error' : 'success' %>"">
     <th>Exit code</th>

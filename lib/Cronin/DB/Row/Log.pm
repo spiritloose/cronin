@@ -3,7 +3,13 @@ use strict;
 use warnings;
 use parent 'Teng::Row';
 
-use Cronin;
+use Cronin::Config;
+
+sub time {
+    my $self = shift;
+    my $time = $self->finished_at || $self->handle->now;
+    $time - $self->started_at;
+}
 
 sub fetch_task {
     my $self = shift;
@@ -43,7 +49,7 @@ sub append_stderr {
 
 sub url {
     my $self = shift;
-    Cronin->config->{base_url} . 'logs/' . $self->id;
+    config->{base_url} . 'logs/' . $self->id;
 }
 
 1;

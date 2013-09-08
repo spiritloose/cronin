@@ -4,10 +4,11 @@ use strict;
 use warnings;
 
 use Cronin;
+use Cronin::Config;
 use Getopt::Long qw(:config posix_default no_ignore_case bundling);
 use Pod::Usage qw(pod2usage);
 use AnyEvent::Util qw(run_cmd);
-use Encode;
+use Encode qw(find_encoding);
 use Sys::Hostname;
 use Module::Load;
 
@@ -18,13 +19,16 @@ sub new {
 
 sub new_with_options {
     my $class = shift;
-    GetOptions(\my %opt,
+    my %opt = (encoding => 'utf8');
+    GetOptions(\%opt,
         'sns:s',   # ARN
         'http:s',  # URL
         'email:s', # To
         'stdout!',
+        'tee!',
         'json!',
         'force-notify!',
+        'encoding=s',
         'help!',
         'version!',
     ) or pod2usage(1);
@@ -47,11 +51,14 @@ sub run {
     });
     my $outbuf = '';
     my $errbuf = '';
-    my $buffer_size = Cronin->config->{buffer_size};
+    my $encoding = find_encoding($self->{encoding});
+    die qq(encoding "$self->{encoding}" not found) unless ref $encoding;
+    my $buffer_size = config->{buffer_size};
     my $cv = run_cmd [$self->{command}, @{$self->{argv}}],
         '>' => sub {
             my $out = shift // return;
-            $outbuf .= decode_utf8($out);
+            print STDOUT $out if $self->{tee};
+            $outbuf .= $encoding->decode($out);
             if (length $outbuf > $buffer_size) {
                 $log->append_stdout($outbuf);
                 $outbuf = '';
@@ -59,7 +66,8 @@ sub run {
         },
         '2>' => sub {
             my $err = shift // return;
-            $errbuf .= decode_utf8($err);
+            print STDERR $err if $self->{tee};
+            $errbuf .= $encoding->decode($err);
             if (length $errbuf > $buffer_size) {
                 $log->append_stderr($errbuf);
                 $errbuf = '';
@@ -79,7 +87,9 @@ sub run {
     $log->append_stdout($outbuf) if $outbuf;
     $log->append_stderr($errbuf) if $errbuf;
     if ($exit_code == 126 && length $log->stderr == 0) { # exec failed
-        $log->append_stderr("cronin: command not found: $self->{command}\n");
+        my $message = "cronin: command not found: $self->{command}\n";
+        print STDERR $message if $self->{tee};
+        $log->append_stderr($message);
     }
     do {
         my $txn = $db->txn_scope;
@@ -96,28 +106,27 @@ sub notify {
     my ($self, $task, $log) = @_;
     $task = $task->handle->find('tasks', $task->id);
     $log = $task->handle->find('logs', $log->id);
-    exists $self->{sns}    and $self->do_notify('SNS', $self->{sns}, $task, $log);
-    exists $self->{http}   and $self->do_notify('HTTP', $self->{http}, $task, $log);
-    exists $self->{email}  and $self->do_notify('Email', $self->{email}, $task, $log);
-    exists $self->{stdout} and $self->do_notify('STDOUT', $self->{stdout}, $task, $log);
+    exists $self->{sns}    and $self->do_notify('SNS',    $task, $log, $self->{sns});
+    exists $self->{http}   and $self->do_notify('HTTP',   $task, $log, $self->{http});
+    exists $self->{email}  and $self->do_notify('Email',  $task, $log, $self->{email});
+    exists $self->{stdout} and $self->do_notify('STDOUT', $task, $log, $self->{stdout});
 }
 
 sub do_notify {
-    my ($self, $subclass, $target, $task, $log) = @_;
+    my ($self, $subclass, $task, $log, $destination) = @_;
     my $class = "Cronin::Notify::$subclass";
     load $class;
     my $notifier = $class->new(
-        task   => $task,
-        log    => $log,
-        target => $target,
-        json   => $self->{json},
+        task => $task,
+        log  => $log,
+        json => $self->{json},
     );
-    $notifier->notify;
+    $notifier->notify($destination);
 }
 
 sub command_to_name {
     my ($self, $command) = @_;
-    my $root = $ENV{CRONIN_PROJECT_ROOT} or return $command;
+    my $root = config->{project_root} or return $command;
     $root =~ s{/$}{};
     $command =~ s{^$root/}{};
     $command;

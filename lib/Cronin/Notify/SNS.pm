@@ -3,27 +3,50 @@ use strict;
 use warnings;
 use parent 'Cronin::Notify';
 
+use Cronin::Config;
+use Encode;
+use JSON;
+use AnyEvent::Util qw(run_cmd);
+
 sub notify {
-    my $self = shift;
-    my $arn = $self->target || $ENV{CRONIN_NOTIFY_SNS_ARN} or die "CRONIN_NOTIFY_SNS_ARN is not set";
+    my ($self, $arn) = @_;
+    $arn ||= config->{SNS}->{arn} or die "SNS: arn is not set";
     my $message = $self->build_message(pretty => 1, canonical => 1);
-    if (eval { require Amazon::SNS; 1 }) {
-        $self->send_via_amazon_sns($arn, $message);
+    if (config->{SNS}->{use_cli}) {
+        $self->send_via_cli($arn, $message);
     } else {
-        $self->send_via_sns_publish($arn, $message);
+        $self->send_via_amazon_sns($arn, $message);
     }
 }
 
-sub send_via_sns_publish {
+sub send_via_cli {
     my ($self, $arn, $message) = @_;
-    system 'sns-publish', $arn, '--message', $message and die $!;
+    my @cmd = (qw[aws sns publish],
+        '--topic-arn' => $arn,
+        '--message'   => encode_utf8($message),
+    );
+    my $cv = run_cmd \@cmd,
+        '>'  => \my $stdout,
+        '2>' => \my $stderr,
+        'close_all' => 1;
+    my $exit_code = $cv->recv;
+    $exit_code >>= 8;
+    if ($exit_code == 126 && length $stderr == 0) { # exec failed
+        die "cronin: command not found: aws";
+    }
+    if ($stdout) {
+        my $res = decode_json($stdout);
+        $res->{MessageId} and return;
+    }
+    die $stderr || "SNS: `aws sns publish` failed!";
 }
 
 sub send_via_amazon_sns {
     my ($self, $arn, $message) = @_;
+    require Amazon::SNS;
     my $service = $ENV{AWS_SNS_URL};
-    unless ($service) {
-        my $region = $ENV{AWS_REGION} || 'us-east-1';
+    unless (defined $service) {
+        my $region = $ENV{AWS_DEFAULT_REGION} || 'us-east-1';
         $service = "https://sns.$region.amazonaws.com/";
     }
     my $sns = Amazon::SNS->new({
@@ -32,7 +55,7 @@ sub send_via_amazon_sns {
         service => $service,
     });
     my $topic = $sns->GetTopic($arn);
-    $topic->Publish($message);
+    $topic->Publish($message) or die $sns->error;
 }
 
 1;

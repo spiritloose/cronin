@@ -1,0 +1,11 @@
+MAILTO=cronin@example.com
+CRONIN="cd /path/to/cronin && carton exec ./script/cronin"
+CRONIN_BASE_URL=http://cronin.example.com/
+CRONIN_DATABASE_DSN="dbi:SQLite(sqlite_unicode=>1):dbpath=/path/to/cronin.db"
+CRONIN_PROJECT_ROOT=/path/to/your/project
+# all available environment variables are defined in Cronin::Config::ENV
+# or you can use config file like below
+# CRONIN_CONFIG_FILE=/path/to/your/cronin.conf
+* * * * * $CRONIN -- /path/to/your/project/script1
+* * * * * $CRONIN --email --force-notify -- /path/to/your/project/script2
+* * * * * $CRONIN --json --email -- /path/to/your/project/script2

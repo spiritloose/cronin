@@ -23,7 +23,7 @@
   <tr<%== $task->pid ? ' class="warning"' : $log->exit_code ? ' class="error"' : '' %>>
     <td class="nowrap"><a href="/logs/<%= $log->id %>"><%= $started_at->strftime('%Y-%m-%d %H:%M:%S') %></a></td>
     <td class="nowrap"><%= $finished_at ? $finished_at->strftime('%Y-%m-%d %H:%M:%S') : '-' %></td>
-    <td class="nowrap"><%= ($finished_at ? $log->finished_at - $log->started_at : $now - $log->started_at) . ' sec' %></td>
+    <td class="nowrap"><%= $log->time %> sec</td>
     <td class="nowrap"><a href="/tasks/<%= $task->id %>"><%= $task->name %></a></td>
     <td class="nowrap"><%= $task->pid || '-' %></td>
     <td class="nowrap"><%= $log->finished_at ? $log->exit_code : '-' %></td>

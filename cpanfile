@@ -6,15 +6,19 @@ requires 'AnyEvent';
 requires 'Time::Piece', '> 1.15';
 requires 'String::ShellQuote';
 
-feature 'sns', 'Notify::SNS' sub {
+feature 'sns', 'Notify::SNS', sub {
     recommends 'Amazon::SNS';
 };
 
-feature 'http', 'Notify::HTTP' sub {
+feature 'http', 'Notify::HTTP', sub {
     recommends 'LWP::UserAgent';
 };
 
-feature 'email', 'Notify::Email' sub {
+feature 'email', 'Notify::Email', sub {
     recommends 'Email::MIME';
     recommends 'Email::Sender';
+};
+
+feature 'email-smtp-tls', 'Notify::Email::SMTP::TLS', sub {
+    recommends 'Email::Sender::Transport::SMTP::TLS';
 };

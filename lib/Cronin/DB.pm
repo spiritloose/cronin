@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use parent 'Teng';
 
-use Cronin;
+use Cronin::Config;
 use Time::Piece;
 
 __PACKAGE__->load_plugin('Pager');
@@ -33,7 +33,7 @@ sub get_tasks {
     $self->search_with_pager('tasks' => {}, {
         order_by => 'last_executed_at DESC, pid IS NOT NULL',
         page     => $page,
-        rows     => Cronin->config->{entries_per_page},
+        rows     => config->{entries_per_page},
     });
 }
 

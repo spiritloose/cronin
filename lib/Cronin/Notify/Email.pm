@@ -3,58 +3,50 @@ use strict;
 use warnings;
 use parent 'Cronin::Notify';
 
-use Cronin;
-use List::Util qw(first);
+use Cronin::Config;
 use Encode;
 use Email::MIME;
 use Email::Sender::Simple qw(sendmail);
 
-our $ENCODING_MAP = {
-    ascii => {
-        header   => 'MIME-Header',
-        charset  => 'US-ASCII',
-        encoding => '7bit',
-    },
-    utf8 => {
-        header   => 'MIME-Header',
-        charset  => 'UTF-8',
-        encoding => '8bit',
-    },
-    iso_2022_jp => {
-        header   => 'MIME-Header-ISO_2022_JP',
-        charset  => 'ISO-2022-JP',
-        encoding => '7bit',
-    },
-};
-
 sub notify {
-    my $self = shift;
-    my $to = $self->target || $ENV{MAILTO} or die 'MAILTO is not set';
-    my $from = $ENV{CRONIN_NOTIFY_EMAIL_FROM} || $to;
+    my ($self, $to) = @_;
+    $to ||= config->{Email}->{to} or die 'Email: to is not set';
+    my $from = config->{Email}->{from} // $to;
     my $subject = sprintf 'Cronin - %s', $self->task->name;
-    my $body = $self->text_message_utf8;
-    my $encoding = $ENCODING_MAP->{ascii};
-    if ($ENV{CRONIN_NOTIFY_EMAIL_ISO_2022_JP}) {
-        $encoding = $ENCODING_MAP->{iso_2022_jp};
-    } elsif (first { /[^[:ascii:]]/ } ($to, $from, $subject, $body)) {
-        $encoding = $ENCODING_MAP->{utf8};
-    }
+    my $body = $self->build_message(pretty => 1, canonical => 1);
+    my $encoding = $body =~ /[^[:ascii:]]/ ? 'quoted-printable' : '7bit';
     my $email = Email::MIME->create(
         header => [
             To                 => $to,
             From               => $from,
-            Subject            => encode($encoding->{header}, $subject),
-            'X-Cronin-Task'    => encode($encoding->{header}, $self->task->name),
-            'X-Cronin-Version' => encode($encoding->{header}, $Cronin::VERSION),
+            Subject            => encode('MIME-Header', $subject),
+            'X-Cronin-Task'    => encode('MIME-Header', $self->task->name),
+            'X-Cronin-Version' => encode('MIME-Header', $Cronin::VERSION),
         ],
-        body => encode($encoding->{charset}, $body),
+        body => encode_utf8($body),
         attributes => {
             content_type => 'text/plain',
-            charset      => $encoding->{charset},
-            encoding     => $encoding->{encoding},
+            charset      => 'UTF-8',
+            encoding     => $encoding,
         },
     );
-    sendmail $email;
+    my $args = $self->sendmail_args;
+    sendmail $email, $args;
+}
+
+sub sendmail_args {
+    my $self = shift;
+    if (config->{Email}->{smtp_tls}) {
+        require Email::Sender::Transport::SMTP::TLS;
+        my $config = config->{Email}->{tls};
+        for my $key (keys %$config) {
+            delete $config->{$key} unless defined $config->{$key};
+        }
+        my $transport = Email::Sender::Transport::SMTP::TLS->new(%$config);
+        +{ transport => $transport };
+    } else {
+        +{};
+    }
 }
 
 1;

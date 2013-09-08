@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use parent 'Teng::Row';
 
-use Cronin;
+use Cronin::Config;
 use String::ShellQuote;
 
 sub start {
@@ -49,7 +49,7 @@ sub logs {
     $self->handle->search_with_pager('logs' => { task_id => $self->id }, {
         order_by => 'started_at DESC',
         page     => $page,
-        rows     => Cronin->config->{entries_per_page},
+        rows     => config->{entries_per_page},
     });
 }
 
