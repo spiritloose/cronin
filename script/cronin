@@ -2,6 +2,9 @@
 use strict;
 use warnings;
 
+use FindBin;
+BEGIN { unshift @INC, "$FindBin::Bin/../lib" }
+
 use Cronin::Runner;
 
 my $runner = Cronin::Runner->new_with_options;
