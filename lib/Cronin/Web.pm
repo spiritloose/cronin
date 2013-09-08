@@ -1,8 +1,10 @@
 package Cronin::Web;
 use Mojo::Base 'Mojolicious';
+use Cronin::Config ();
 
 sub startup {
     my $self = shift;
+    Cronin::Config::config(); # to load config
     my $r = $self->routes;
     $r->get('/')->to('root#index');
     $r->get('/tasks/:task_id')->to('root#tasks');

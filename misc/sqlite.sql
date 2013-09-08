@@ -7,6 +7,8 @@ CREATE TABLE tasks (
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL
 );
+CREATE UNIQUE INDEX tasks_name ON tasks(name);
+CREATE INDEX tasks_list ON tasks(last_executed_at, pid);
 
 CREATE TABLE logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,3 +24,4 @@ CREATE TABLE logs (
     finished_at DATETIME,
     updated_at DATETIME NOT NULL
 );
+CREATE INDEX logs_list ON logs(task_id, started_at);
