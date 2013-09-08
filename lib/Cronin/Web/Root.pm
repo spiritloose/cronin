@@ -26,10 +26,5 @@ sub logs {
     $self->render(log => $log, task => $task);
 }
 
-sub help {
-    my $self = shift;
-    $self->render;
-}
-
 1;
 __END__

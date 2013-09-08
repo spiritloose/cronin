@@ -9,7 +9,6 @@ sub startup {
     $r->get('/')->to('root#index');
     $r->get('/tasks/:task_id')->to('root#tasks');
     $r->get('/logs/:log_id')->to('root#logs');
-    $r->get('/help')->to('root#help');
     $self->helper(truncate_str => sub {
         my ($self, $str, $len) = @_;
         return $str if length $str <= $len;

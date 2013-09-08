@@ -1,5 +1,4 @@
 % layout 'default';
-% title 'Cronin';
 
 <h2><a href="/tasks/<%= $task->id %>"><%= $task->name %></a></h2>
 % my $finished_at = $log->finished_at;
