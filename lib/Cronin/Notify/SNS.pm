@@ -10,7 +10,7 @@ use AnyEvent::Util qw(run_cmd);
 
 sub notify {
     my ($self, $arn) = @_;
-    $arn ||= config->{SNS}->{arn} or die "SNS: arn is not set";
+    $arn ||= config->{SNS}->{arn} or die "SNS: arn required";
     my $message = $self->build_message(pretty => 1, canonical => 1);
     if (config->{SNS}->{use_cli}) {
         $self->send_via_cli($arn, $message);

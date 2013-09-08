@@ -31,7 +31,7 @@ sub read {
                 port                  => $ENV{CRONIN_NOTIFY_EMAIL_SMTP_TLS_PORT} // undef,
                 username              => $ENV{CRONIN_NOTIFY_EMAIL_SMTP_TLS_USERNAME} // undef,
                 password              => $ENV{CRONIN_NOTIFY_EMAIL_SMTP_TLS_PASSWORD} // undef,
-                helo                  => $ENV{CRONIN_NOTIFY_EMAIL_SMTP_TLS_USERNAME} // undef,
+                helo                  => $ENV{CRONIN_NOTIFY_EMAIL_SMTP_TLS_HELO} // undef,
                 allow_partial_success => $ENV{CRONIN_NOTIFY_EMAIL_SMTP_TLS_ALLOW_PARTIAL_SUCCESS} // undef,
             },
         },

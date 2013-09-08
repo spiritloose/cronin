@@ -2,30 +2,31 @@ requires 'perl', '5.10.1';
 requires 'Mojolicious';
 requires 'Teng';
 requires 'AnyEvent';
+requires 'JSON', '2';
 requires 'Time::Piece', '> 1.15';
 requires 'String::ShellQuote';
 
 feature 'sqlite', 'DBD::SQLite', sub {
-    recommends 'DBD::SQLite';
+    requires 'DBD::SQLite';
 };
 
 feature 'mysql', 'DBD::mysql', sub {
-    recommends 'DBD::mysql';
+    requires 'DBD::mysql';
 };
 
 feature 'sns', 'Notify::SNS', sub {
-    recommends 'Amazon::SNS';
+    requires 'Amazon::SNS';
 };
 
 feature 'http', 'Notify::HTTP', sub {
-    recommends 'LWP::UserAgent';
+    requires 'LWP::UserAgent';
 };
 
 feature 'email', 'Notify::Email', sub {
-    recommends 'Email::MIME';
-    recommends 'Email::Sender';
+    requires 'Email::MIME';
+    requires 'Email::Sender';
 };
 
 feature 'email-smtp-tls', 'Notify::Email::SMTP::TLS', sub {
-    recommends 'Email::Sender::Transport::SMTP::TLS';
+    requires 'Email::Sender::Transport::SMTP::TLS';
 };

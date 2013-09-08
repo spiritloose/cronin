@@ -1,0 +1,60 @@
+NAME
+    cronin - Run cron application
+
+SYNOPSIS
+      # Simple
+      cronin -- /path/to/your/script
+
+      # Notify to the mail address if the command is failed
+      cronin --email=cronin@example.com -- /path/to/your/script
+
+      # Notify to the ARN if the command is failed
+      cronin --sns=arn:aws:sns:... -- /path/to/your/script
+
+      # Notify to the URL if the command is failed
+      cronin --http=http://example.com/notify -- /path/to/your/script
+
+DESCRIPTION
+    cronin is a command line utility to run cron applications.
+
+ARGUMENTS
+    command
+          cronin -- /path/to/your/script --opt1 --opt2
+
+        The first non-option argument is used as a command.
+
+OPTIONS
+    --sns[=ARN]
+        Specifies the Amazon SNS ARN.
+
+    --http[=URL]
+        Specifies the URL.
+
+    --email[=MAILTO]
+        Specifies the mail address.
+
+    --stdout
+        Prints results to STDOUT.
+
+    --tee
+        Prints to STDOUT and STDERR like tee(1).
+
+    --json
+        Notifies with JSON format. Defaults to false.
+
+    --force-notify
+        Notifies even if the command is succeeded. Defaults to false.
+
+    --encoding
+        Specifies the command output encoding. Defaults to UTF-8.
+
+AUTHOR
+    Jiro Nishiguchi
+
+LICENSE
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    Cronin::Runner
+

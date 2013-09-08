@@ -9,7 +9,7 @@ use LWP::UserAgent;
 
 sub notify {
     my ($self, $url) = @_;
-    $url ||= config->{HTTP}->{url} or die "HTTP: url is not set";
+    $url ||= config->{HTTP}->{url} or die "HTTP: url required";
     my $ua = LWP::UserAgent->new(
         agent     => "Cronin/$Cronin::VERSION",
         timeout   => config->{HTTP}->{timeout},

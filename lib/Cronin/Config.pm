@@ -30,7 +30,7 @@ sub load {
 
 sub init {
     my ($class, $config) = @_;
-    $config->{base_url} or die "base_url is not set";
+    $config->{base_url} or die "Missing required option: base_url";
     if (defined(my $value = $config->{entries_per_page})) {
         die "entries_per_page: Not Positive Integer" if !looks_like_number($value) || $value < 1;
     } else {

@@ -10,7 +10,7 @@ use Email::Sender::Simple qw(sendmail);
 
 sub notify {
     my ($self, $to) = @_;
-    $to ||= config->{Email}->{to} or die 'Email: to is not set';
+    $to ||= config->{Email}->{to} or die 'Email: to required';
     my $from = config->{Email}->{from} // $to;
     my $subject = sprintf 'Cronin - %s', $self->task->name;
     my $body = $self->build_message(pretty => 1, canonical => 1);
