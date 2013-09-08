@@ -23,7 +23,7 @@ feature 'http', 'HTTP support', sub {
 };
 
 feature 'https', 'https support', sub {
-    requires 'LWP::Protocol:https';
+    requires 'LWP::Protocol::https';
 };
 
 feature 'email', 'Email support', sub {
