@@ -1,0 +1,4 @@
+% layout 'default';
+
+<h2>Server Error</h2>
+<p><%= $exception->message %></p>
