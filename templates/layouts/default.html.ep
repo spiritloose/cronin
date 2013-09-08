@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="/css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
-    <link href="/css/main.css" rel="stylesheet" media="screen">
+    <link href="<%= url_for('/css/bootstrap.min.css') %>" rel="stylesheet" media="screen">
+    <link href="<%= url_for('/css/bootstrap-responsive.min.css') %>" rel="stylesheet" media="screen">
+    <link href="<%= url_for('/css/main.css') %>" rel="stylesheet" media="screen">
     <title>Cronin</title>
   </head>
   <body data-spy="scroll">
@@ -33,6 +33,6 @@
     </footer>
 
     <script src="http://code.jquery.com/jquery.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <script src="<%= url_for('/js/bootstrap.min.js') %>"></script>
   </body>
 </html>

@@ -6,9 +6,9 @@ sub startup {
     my $self = shift;
     Cronin::Config::config(); # to load config
     my $r = $self->routes;
-    $r->get('/')->to('root#index');
-    $r->get('/tasks/:task_id')->to('root#tasks');
-    $r->get('/logs/:log_id')->to('root#logs');
+    $r->get('/')->name('index')->to('root#index');
+    $r->get('/tasks/:task_id')->name('tasks')->to('root#tasks');
+    $r->get('/logs/:log_id')->name('logs')->to('root#logs');
     $self->helper(truncate_str => sub {
         my ($self, $str, $len) = @_;
         return $str if length $str <= $len;
