@@ -1,9 +1,10 @@
 % layout 'default';
 
-% if (@$tasks) {
+% if (@$logs) {
 
 % my $now = Time::Piece->new;
 
+<h2><a href="<%= url_for 'hosts', host => $host %>"><%= $host %></a></h2>
 <table class="table table-bordered">
   <tr>
     <th width="120">Start</th>
@@ -16,8 +17,8 @@
     <th>STDOUT</th>
     <th>STDERR</th>
   </tr>
-% for my $task (@$tasks) {
-% my $log = $task->fetch_last_log or next;
+% for my $log (@$logs) {
+% my $task = $log->fetch_task;
 % my $started_at  = $log->started_at;
 % my $finished_at = $log->finished_at;
   <tr<%== $task->pid ? ' class="warning"' : $log->exit_code ? ' class="error"' : '' %>>

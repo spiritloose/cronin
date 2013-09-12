@@ -4,12 +4,17 @@
 
 % my $now = Time::Piece->new;
 
-<h2><a href="<%= url_for 'tasks', task_id => $task->id %>"><%= $task->name %></a></h2>
+<h2>
+<a href="<%= url_for 'hosts', host => $task->host %>"><%= $task->host %></a>
+:
+<a href="<%= url_for 'tasks', task_id => $task->id %>"><%= $task->name %></a>
+</h2>
 <table class="table table-bordered">
   <tr>
     <th width="120">Start</th>
     <th width="120">End</th>
     <th width="50">Time</th>
+    <th>Host</th>
     <th>Task</th>
     <th width="50">PID</th>
     <th width="30">Exit code</th>
@@ -23,6 +28,7 @@
     <td class="nowrap"><a href="<%= url_for 'logs', log_id => $log->id %>"><%= $started_at->strftime('%Y-%m-%d %H:%M:%S') %></a></td>
     <td class="nowrap"><%= $finished_at ? $finished_at->strftime('%Y-%m-%d %H:%M:%S') : '-' %></td>
     <td class="nowrap"><%= $log->time %> sec</td>
+    <td class="nowrap"><a href="<%= url_for 'hosts', host => $log->host %>"><%= $log->host %></a></td>
     <td class="nowrap"><a href="<%= url_for 'tasks', task_id => $task->id %>"><%= $task->name %></a></td>
     <td class="nowrap"><%= $task->pid || '-' %></td>
     <td class="nowrap"><%= $log->finished_at ? $log->exit_code : '-' %></td>

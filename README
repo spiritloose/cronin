@@ -24,6 +24,17 @@ ARGUMENTS
         The first non-option argument is used as a command.
 
 OPTIONS
+    --name
+        Specifies the name. Defaults to command name.
+
+    --host
+        Specifies the host. Cronin runs the command on the host using ssh.
+        Defaults to localhost (without ssh).
+
+    --user
+        Specifies the user. If the host option given, login by the user to
+        remote host. Defaults to $ENV{USER}.
+
     --sns[=ARN]
         Specifies the Amazon SNS ARN.
 

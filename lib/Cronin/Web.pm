@@ -8,6 +8,7 @@ sub startup {
     my $r = $self->routes;
     $r->get('/')->name('index')->to('root#index');
     $r->get('/tasks/:task_id')->name('tasks')->to('root#tasks');
+    $r->get('/hosts/:host')->name('hosts')->to('root#hosts');
     $r->get('/logs/:log_id')->name('logs')->to('root#logs');
     $self->helper(truncate_str => sub {
         my ($self, $str, $len) = @_;

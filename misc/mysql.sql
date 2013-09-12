@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS tasks;
 CREATE TABLE tasks (
     id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    host VARBINARY(255) NOT NULL,
     name VARBINARY(767) NOT NULL,
     pid INT UNSIGNED,
     last_log_id INT UNSIGNED,
@@ -8,7 +9,7 @@ CREATE TABLE tasks (
     created_at DATETIME NOT NULL,
     updated_at TIMESTAMP
 ) CHARSET utf8;
-CREATE UNIQUE INDEX tasks_name ON tasks(name);
+CREATE UNIQUE INDEX tasks_host_name ON tasks(host, name);
 CREATE INDEX tasks_list ON tasks(last_executed_at, pid);
 
 DROP TABLE IF EXISTS logs;
@@ -17,8 +18,8 @@ CREATE TABLE logs (
     task_id INT UNSIGNED NOT NULL,
     pid INT UNSIGNED,
     user VARCHAR(32) NOT NULL,
-    hostname VARCHAR(255) NOT NULL,
-    argv TEXT NOT NULL,
+    host VARCHAR(255) NOT NULL,
+    command TEXT NOT NULL,
     exit_code INT UNSIGNED,
     stdout TEXT,
     stderr TEXT,
@@ -26,4 +27,5 @@ CREATE TABLE logs (
     finished_at DATETIME,
     updated_at TIMESTAMP
 ) CHARSET utf8;
-CREATE INDEX logs_list ON logs(task_id, started_at);
+CREATE INDEX logs_host_list ON logs(host, started_at);
+CREATE INDEX logs_task_id_list ON logs(task_id, started_at);

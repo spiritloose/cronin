@@ -18,6 +18,14 @@ sub tasks {
     $self->render(task => $task, logs => $logs, pager => $pager);
 }
 
+sub hosts {
+    my $self = shift;
+    my $host = $self->stash('host');
+    my $page = $self->req->param('page') || 1;
+    my ($logs, $pager) = Cronin->db->get_host_logs($host, $page);
+    $self->render(host => $host, logs => $logs, pager => $pager);
+}
+
 sub logs {
     my $self = shift;
     my $id = $self->stash('log_id');

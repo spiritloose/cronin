@@ -1,6 +1,10 @@
 % layout 'default';
 
-<h2><a href="<%= url_for 'tasks', task_id => $task->id %>"><%= $task->name %></a></h2>
+<h2>
+<a href="<%= url_for 'hosts', host => $task->host %>"><%= $task->host %></a>
+:
+<a href="<%= url_for 'tasks', task_id => $task->id %>"><%= $task->name %></a>
+</h2>
 % my $finished_at = $log->finished_at;
 <table class="table table-bordered">
   <tr>
@@ -20,8 +24,8 @@
     <td><%= $finished_at ? $log->exit_code : '-' %></td>
   </tr>
   <tr>
-    <th>ARGV</th>
-    <td><% if (length($log->argv)) { %><pre><%= $log->argv%></pre><% } %></td>
+    <th>Command</th>
+    <td><pre><%= $log->command %></pre></td>
   </tr>
   <tr>
     <th>STDOUT</th>
@@ -34,10 +38,6 @@
   <tr>
     <th>User</th>
     <td><%= $log->user %></td>
-  </tr>
-  <tr>
-    <th>Hostname</th>
-    <td><%= $log->hostname %></td>
   </tr>
   <tr>
     <th>PID</th>

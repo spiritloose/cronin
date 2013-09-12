@@ -15,7 +15,7 @@
           <a class="brand" href="/">Cronin</a>
           <div class="nav-collapse">
             <ul class="nav pull-right">
-              <li><a href="https://github.com/spiritloose/cronin/">Source Code</a></li>
+              <li><a href="https://github.com/spiritloose/cronin">Source Code</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>

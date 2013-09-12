@@ -4,7 +4,6 @@ use warnings;
 use parent 'Teng::Row';
 
 use Cronin::Config;
-use String::ShellQuote;
 
 sub start {
     my ($self, $data) = @_;
@@ -13,8 +12,8 @@ sub start {
     my $log = $self->handle->insert('logs' => {
         task_id    => $self->id,
         user       => $data->{user},
-        hostname   => $data->{hostname},
-        argv       => join(' ', map { shell_quote_best_effort $_ } @{$data->{argv}}),
+        host       => $data->{host},
+        command    => $data->{command},
         stdout     => '',
         stderr     => '',
         started_at => $now,

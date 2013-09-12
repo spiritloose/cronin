@@ -10,7 +10,10 @@ use Pod::Usage qw(pod2usage);
 use AnyEvent::Util qw(run_cmd);
 use Encode qw(find_encoding);
 use Sys::Hostname;
+use String::ShellQuote;
 use Module::Load;
+
+our $SSH_CMD = 'ssh';
 
 sub new {
     my ($class, %args) = @_;
@@ -21,6 +24,9 @@ sub new_with_options {
     my $class = shift;
     my %opt = (encoding => 'utf8');
     GetOptions(\%opt,
+        'name:s',
+        'host:s',
+        'user:s',
         'sns:s',   # ARN
         'http:s',  # URL
         'email:s', # To
@@ -34,27 +40,37 @@ sub new_with_options {
     ) or pod2usage(1);
     $opt{help} and pod2usage(0);
     $opt{version} and $class->print_version;
-    $opt{command} = shift @ARGV or pod2usage(1);
-    $opt{argv} = \@ARGV;
+    @ARGV or pod2usage(1);
+    $opt{command} = \@ARGV;
     $class->new(%opt);
 }
 
 sub run {
     my $self = shift;
     my $db = Cronin->db;
-    my $name = $self->command_to_name($self->{command});
-    my $task = $db->find_or_create_task($name);
+    my $name = $self->{name} // $self->command_to_name($self->{command}->[0]);
+    my $host = $self->{host};
+    my $user = $ENV{USER};
+    my @command = @{$self->{command}};
+    if (defined $host) {
+        $user = $self->{user} if defined $self->{user};
+        unshift @command, 'ssh', "$user\@$host";
+    } else {
+        $host = hostname;
+    }
+    my $task = $db->find_or_create_task($host, $name);
+    my $cmd_str = join(' ', map { shell_quote_best_effort $_ } @{$self->{command}});
     my $log = $task->start({
-        user     => $ENV{USER},
-        hostname => hostname,
-        argv     => $self->{argv},
+        user    => $user,
+        host    => $host,
+        command => $cmd_str,
     });
     my $outbuf = '';
     my $errbuf = '';
     my $encoding = find_encoding($self->{encoding});
     die qq(encoding "$self->{encoding}" not found) unless ref $encoding;
     my $buffer_size = config->{buffer_size};
-    my $cv = run_cmd [$self->{command}, @{$self->{argv}}],
+    my $cv = run_cmd \@command,
         '>' => sub {
             my $out = shift // return;
             print STDOUT $out if $self->{tee};
